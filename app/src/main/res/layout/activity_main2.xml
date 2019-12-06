@@ -8,43 +8,47 @@
 
 
     <ListView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/DescriptionList"
         android:layout_alignParentTop="true"
-        android:layout_above="@+id/timer_clock_linear_layout"
-        android:layout_toRightOf="@+id/fancy_list_view"
-        android:layout_toEndOf="@+id/fancy_list_view"
+        android:layout_above="@+id/fancy_list_view"
         android:background="@drawable/border2"
         android:divider="#000000"
         android:dividerHeight="1px"
         />
 
-    <ScrollView
-        android:layout_width="70dp"
-        android:layout_height="match_parent"
+    <HorizontalScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
         android:id="@+id/fancy_list_view"
         android:layout_above="@+id/timer_clock_linear_layout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:fillViewport="true"
+        android:scrollbars="none"
+        android:background="@drawable/border"
         >
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
 
-            android:id="@+id/blocks_scrollview_linear_layout">
-            <View
-                android:id="@+id/DummyBlockTop"
-                android:layout_width="match_parent"
-                android:layout_height="600dp"/>
-                <View
-                    android:id="@+id/DummyBlockBottom"
-                    android:layout_width="match_parent"
-                    android:layout_height="600dp"/>
-            </LinearLayout>
-    </ScrollView>
+            android:id="@+id/blocks_scrollview_linear_layout"
+            >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/DummyBlockTop"></LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/DummyBlockBottom"></LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
 
 
 
@@ -52,7 +56,7 @@
         android:id="@+id/timer_clock_linear_layout"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -62,7 +66,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp">
+            >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -134,14 +138,14 @@
         android:layout_marginRight="-20dp" />
 
     <ImageView
+        android:rotation="270"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/arrow2"
-        android:layout_alignTop="@+id/arrow1"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:src="@android:drawable/ic_media_play"
-        android:layout_marginLeft="-10dp" />
+        android:layout_below="@+id/fancy_list_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-20dp" />
 
 
 </RelativeLayout>

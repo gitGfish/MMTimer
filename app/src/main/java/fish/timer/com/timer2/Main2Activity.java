@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -35,7 +36,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
     TextView Time_text;
     Handler customHandler = new Handler();
     LinearLayout container;
-    ScrollView sv;
+    HorizontalScrollView sv;
     ArrayList<TimeBlock> TimeBlocksArray;
     public View BlockBeingEdited;
     ListView DescriptionList;
@@ -71,7 +72,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             secs%=Minute;
             int millisec=(int)(updateTime%MS);
             Time_text.setText("" + mins + ":" + String.format("%2d", secs) + ":" + String.format("%3d", millisec));
-            sv.scrollTo(0, ((int) (Block_size_px * updateTime / (Ratio * MS))));
+            sv.scrollTo( ((int) (Block_size_px * updateTime / (Ratio * MS))),0);
             if( currBlockTime <= timeInMs ){
                     curBlock++;
                 if( curBlock >= TimeBlocksArray.size()){
@@ -168,7 +169,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         /////////////////////////////////////////////////////////////////
         // lists
 
-        sv = (ScrollView) findViewById(R.id.fancy_list_view);
+        sv = (HorizontalScrollView) findViewById(R.id.fancy_list_view);
         DescriptionList = (ListView)findViewById(R.id.DescriptionList);
         customAdapter = new CustomAdapter2();
         DescriptionList.setItemsCanFocus(true);
@@ -182,7 +183,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             @Override
             public void onGlobalLayout() {
                 sv.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                Block_Window_size_px = sv.getHeight(); //height is ready
+                Block_Window_size_px = sv.getWidth(); //height is ready
                 Block_size_px = (int)(0.05 * Block_Window_size_px);
                 //set the arrow in place
                 ImageView image = (ImageView) findViewById(R.id.arrow1);
@@ -190,9 +191,9 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
                 marginParams.setMargins(0, (Block_Window_size_px / 2 - image.getHeight() / 2), -40, 0);
                 //set 2 dummy blocks in scrollview
                 View dummyBottom = findViewById(R.id.DummyBlockBottom);
-                dummyBottom.setLayoutParams(new LinearLayout.LayoutParams(sv.getWidth(), sv.getHeight() / 2));
+                dummyBottom.setLayoutParams(new LinearLayout.LayoutParams( sv.getWidth() / 2,sv.getHeight()));
                 View dummyTop = findViewById(R.id.DummyBlockTop);
-                dummyTop.setLayoutParams(new LinearLayout.LayoutParams(sv.getWidth(), sv.getHeight() / 2));
+                dummyTop.setLayoutParams(new LinearLayout.LayoutParams(sv.getWidth() / 2,sv.getHeight()));
 
                 //check if first time enetring a timer if yes insert dummy time block
                 if(TimeBlocksArray == null){
@@ -230,7 +231,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         DescriptionList.setSelection(curBlock);
         DescriptionList.requestFocus();
         customHandler.removeCallbacks(updateTimerThread);
-        sv.scrollTo(0, ((int) (Block_size_px * updateTime / (Ratio * MS))));
+        sv.scrollTo( ((int) (Block_size_px * updateTime / (Ratio * MS))),0);
         SaveLoad.Save(ID,NAME,Ratio,TimeBlocksArray,myDb,false);
     }
 
@@ -244,7 +245,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         ViewGroup.LayoutParams params = l.getLayoutParams();
 
 
-        params.height = (int)(Minutes * Block_size_px);
+        params.width = (int)(Minutes * Block_size_px);
         l.setLayoutParams(params);
         block_text.setText(Name + "\n" + String.valueOf(Minutes));
         rowView.setOnClickListener(new View.OnClickListener() {
@@ -303,7 +304,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             TextView block_text = (TextView) BlockBeingEdited.findViewById(R.id.block_time_text);
             LinearLayout l = (LinearLayout) BlockBeingEdited.findViewById(R.id.fancy_block_linear_layout);
             ViewGroup.LayoutParams params = l.getLayoutParams();
-            params.height = (int)(Minutes * Block_size_px);
+            params.width = (int)(Minutes * Block_size_px);
             l.setLayoutParams(params);
             Random rnd = new Random();
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
