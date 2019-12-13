@@ -25,6 +25,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
         ArrayList<String[]> NAMES;
     DatabaseHelper myDb;
+    static ListView list;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,13 +33,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         myDb = new DatabaseHelper(this);
-
         NAMES = SaveLoad.loadIdAndNames(myDb);
 
 
 
 
-        ListView list = (ListView)findViewById(R.id.main_list_view);
+        list = (ListView)findViewById(R.id.main_list_view);
 
         CustomAdapter customAdapter = new CustomAdapter();
 
@@ -62,9 +62,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        list.invalidateViews();
 
-                alert.setTitle("Title");
-                alert.setMessage("Message");
+
+                    }
+                });
+                alert.setTitle("Add Timer");
+                alert.setMessage("Timer Name");
 
 // Set an EditText view to get user input
                 final EditText input = new EditText(MainActivity.this);
@@ -72,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
                 alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        SaveLoad.Save("0",input.getText().toString(),1,null,myDb,true );
+                        SaveLoad.Save("0", input.getText().toString(), 1, null, myDb, true);
                         // Do something with value!
                     }
                 });
@@ -84,8 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 alert.show();
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             }
         });
     }
@@ -113,8 +119,12 @@ public class MainActivity extends AppCompatActivity {
     }
     class CustomAdapter extends BaseAdapter {
 
+
         @Override
         public int getCount() {
+            if(NAMES == null){
+                return 0;
+            }
             return NAMES.size();
         }
 
@@ -130,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            if(NAMES == null){
+                return  null;
+            }
             convertView = getLayoutInflater().inflate(R.layout.main_list_item_view,null);
 
             TextView name = (TextView) convertView.findViewById(R.id.menu_list_item_text);

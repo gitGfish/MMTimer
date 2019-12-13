@@ -32,7 +32,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="fill_parent"
 
             android:id="@+id/blocks_scrollview_linear_layout"
             >
@@ -40,12 +40,12 @@
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:id="@+id/DummyBlockTop"></LinearLayout>
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:id="@+id/DummyBlockBottom"></LinearLayout>
         </LinearLayout>
     </HorizontalScrollView>
@@ -70,7 +70,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0:00:000"
+                android:text="0:00"
                 android:textSize="32sp"
                 android:id="@+id/timer_text"
                 android:layout_gravity="center_horizontal"

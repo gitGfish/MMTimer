@@ -2,6 +2,7 @@ package fish.timer.com.timer2;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
@@ -20,6 +21,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -41,7 +43,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
     public View BlockBeingEdited;
     ListView DescriptionList;
     public int curBlock;
-    public int currBlockTime;
+    public long currBlockTime;
     public int seconed;
     long startTime=0L,timeInMs=0L,timeSwapBuff=0L,updateTime=0L;
     public String NAME;
@@ -54,11 +56,22 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
     //ratio handeling
     int Block_Window_size_px;
     float Block_size_px;
-    public int Ratio = 10;
+    public int Ratio = 1;
     final int MS = 1000;
     final int Minute = 60;
     private int tick,curTick;
     private int pCount = 0;
+    ProgressBar mProgress;
+    Resources res;
+    Drawable drawable;
+    TextView tv;
+    int pStatus = 0;
+    private Handler handlerProgressBar = new Handler();
+    long precentCalcTemp = 0;
+
+
+
+
 
 
     //Timer run
@@ -67,35 +80,34 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         public void run() {
             timeInMs = SystemClock.uptimeMillis() - startTime;
             updateTime = timeSwapBuff+timeInMs;
-            int secs = (int)(updateTime/MS);
-            int mins = secs/Minute;
-            secs%=Minute;
-            int millisec=(int)(updateTime%MS);
-            Time_text.setText("" + mins + ":" + String.format("%2d", secs) + ":" + String.format("%3d", millisec));
-            sv.scrollTo( ((int) (Block_size_px * updateTime / (Ratio * MS))),0);
-            if( currBlockTime <= timeInMs ){
-                    curBlock++;
+            Time_text.setText(MiliToStr(updateTime));
+            sv.scrollTo(((int) (Block_size_px * updateTime / (Ratio * MS))), 0);
+
+            //circle progress bar inc
+            pStatus = (int) (((double)(updateTime - precentCalcTemp) / (currBlockTime - precentCalcTemp) ) *100);
+            customAdapter.incProgress(curBlock,pStatus,(int) (currBlockTime - updateTime));
+
+            if( currBlockTime <= updateTime ){
+                curBlock++;
                 if( curBlock >= TimeBlocksArray.size()){
                     play_paus.setImageResource(android.R.drawable.ic_media_play);
+                    playOrPause=true;
                     restar();
                     return;
                 }
                     DescriptionList.setSelection(curBlock);
                     DescriptionList.requestFocus();
-                    currBlockTime += TimeBlocksArray.get(curBlock)._minutes * Ratio * MS;
+                    precentCalcTemp = currBlockTime;
+                    currBlockTime += TimeBlocksArray.get(curBlock)._milisec;
 
             }
-            customHandler.postDelayed(this,0);
+            customHandler.postDelayed(this, 0);
 
         }
     };
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("gggg",String.valueOf(parentLinearLayout.getHeight()));
-    }
+
 
 
     @Override
@@ -103,10 +115,14 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+
+        res = getResources();
+        drawable = res.getDrawable(R.drawable.circular);
+
         //Toolbar name handeling
         play_paus = (FloatingActionButton) findViewById(R.id.Play_pause);
 
-
+        //get info from caller activity
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(extras == null) {
@@ -120,7 +136,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             ID = (String) savedInstanceState.getSerializable("STRING_INAME");
         }
 
-
+        //init database
         myDb = new DatabaseHelper(this);
 
         curBlock = 0;
@@ -141,6 +157,8 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
                     customHandler.postDelayed(updateTimerThread, 0);
                     playOrPause=false;
                     play_paus.setImageResource(android.R.drawable.ic_media_pause);
+                    DescriptionList.setSelection(curBlock);
+                    DescriptionList.requestFocus();
                 }else{
                     timeSwapBuff += timeInMs;
                     customHandler.removeCallbacks(updateTimerThread);
@@ -160,6 +178,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         restart_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 playOrPause=true;
                 play_paus.setImageResource(android.R.drawable.ic_media_play);
                 restar();
@@ -171,7 +190,6 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
 
         sv = (HorizontalScrollView) findViewById(R.id.fancy_list_view);
         DescriptionList = (ListView)findViewById(R.id.DescriptionList);
-        customAdapter = new CustomAdapter2();
         DescriptionList.setItemsCanFocus(true);
         parentLinearLayout = (LinearLayout) findViewById(R.id.blocks_scrollview_linear_layout);
         TimeBlocksArray = SaveLoad.Load(myDb,ID);
@@ -182,61 +200,70 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         sv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+
+
                 sv.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 Block_Window_size_px = sv.getWidth(); //height is ready
-                Block_size_px = (int)(0.05 * Block_Window_size_px);
+                Block_size_px = (int) (0.05 * Block_Window_size_px);
                 //set the arrow in place
                 ImageView image = (ImageView) findViewById(R.id.arrow1);
                 ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) image.getLayoutParams();
                 marginParams.setMargins(0, (Block_Window_size_px / 2 - image.getHeight() / 2), -40, 0);
                 //set 2 dummy blocks in scrollview
                 View dummyBottom = findViewById(R.id.DummyBlockBottom);
-                dummyBottom.setLayoutParams(new LinearLayout.LayoutParams( sv.getWidth() / 2,sv.getHeight()));
+                dummyBottom.setLayoutParams(new LinearLayout.LayoutParams(sv.getWidth() / 2, sv.getHeight()));
                 View dummyTop = findViewById(R.id.DummyBlockTop);
-                dummyTop.setLayoutParams(new LinearLayout.LayoutParams(sv.getWidth() / 2,sv.getHeight()));
-
-                //check if first time enetring a timer if yes insert dummy time block
-                if(TimeBlocksArray == null){
-                    TimeBlocksArray = new ArrayList<>();
-                    onAddField(null, "add", 10,Color.RED, "this is a description", true);
-                    isTimerNew = true;
-                }else{
-                    //insert all time blocks from db
-                    for (TimeBlock t: TimeBlocksArray
-                            ) {
-                        onAddField(null,t._name,t._minutes,t._color,t._description,true);
-                    }
+                dummyTop.setLayoutParams(new LinearLayout.LayoutParams(sv.getWidth() / 2, sv.getHeight()));
+                //insert all time blocks from db
+                for (TimeBlock t : TimeBlocksArray) {
+                    onAddField(null, t._name, t._milisec, t._color, t._description, true);
                 }
                 //setup first block time
-                currBlockTime = TimeBlocksArray.get(0)._minutes*Ratio*MS;
+                currBlockTime = TimeBlocksArray.get(0)._milisec;
+                customAdapter = new CustomAdapter2();
                 if (DescriptionList != null) {
                     DescriptionList.setAdapter(customAdapter);
                 }
+
             }
         });
+        DescriptionList.setAdapter(customAdapter);
 
+        final Handler handlerList = new Handler();
+        handlerList.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                customAdapter.notifyDataSetChanged();
+                handlerList.postDelayed(this,  200);
+            }
+        },  200);
 
 
 
     }
 
     public void restar() {
+        precentCalcTemp = 0;
         timeInMs=0L;
         timeSwapBuff=0L;
         updateTime=0L;
         startTime = SystemClock.uptimeMillis();
-        Time_text.setText("0:00:000");
+        Time_text.setText("0:00");
         curBlock=0;
-        currBlockTime = TimeBlocksArray.get(0)._minutes*Ratio*MS;
+        for (TimeBlock t: TimeBlocksArray) {
+            t.reset();
+        }
+        currBlockTime = TimeBlocksArray.get(0)._milisec;
         DescriptionList.setSelection(curBlock);
         DescriptionList.requestFocus();
         customHandler.removeCallbacks(updateTimerThread);
-        sv.scrollTo( ((int) (Block_size_px * updateTime / (Ratio * MS))),0);
-        SaveLoad.Save(ID,NAME,Ratio,TimeBlocksArray,myDb,false);
+        sv.scrollTo(((int) (Block_size_px * updateTime / (Ratio * MS))), 0);
+        SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, false);
     }
 
 
-    public void onAddField(View v,String Name, int Minutes,int color, String Description,boolean first) {
+    public void onAddField(View v,String Name, long Mili,int color, String Description,boolean first) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.fancy_time_block, null);
 
@@ -244,52 +271,59 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         LinearLayout l = (LinearLayout) rowView.findViewById(R.id.fancy_block_linear_layout);
         ViewGroup.LayoutParams params = l.getLayoutParams();
 
-
-        params.width = (int)(Minutes * Block_size_px);
+        params.width = (int)((Mili/MS) * Block_size_px);
         l.setLayoutParams(params);
-        block_text.setText(Name + "\n" + String.valueOf(Minutes));
+        block_text.setText(Name + "  " + MiliToStr(Mili) + "\n");
+
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openEditDialog(v);
-
-
             }
         });
         // Add the new row before the add field button.
         l.setBackgroundColor(color);
-
+        int pos = -2;
         if(first){
             if(TimeBlocksArray.size()==0 ){
-                TimeBlock time_block = new TimeBlock(Minutes,0,color,Name, Description);
-                TimeBlocksArray.add(time_block);
+                pos = -1;
             }
             l.setLayoutParams(params);
             parentLinearLayout.addView(rowView,parentLinearLayout.getChildCount()-1);
         }else{
-            TimeBlock time_block = new TimeBlock(Minutes,0,color,Name, Description);
-            TimeBlocksArray.add(parentLinearLayout.indexOfChild(v), time_block);
+            pos = parentLinearLayout.indexOfChild(v);
             parentLinearLayout.addView(rowView, parentLinearLayout.indexOfChild(v)+1);
-
         }
-
-        DescriptionList.invalidateViews();
+        addElement(new TimeBlock(Mili,color, Name, Description), pos);
+        SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, false);
     }
 
-
+    public void addElement(TimeBlock t, int pos){
+        if(pos == -2){
+            return;
+        }
+        if(pos <= 0){
+            TimeBlocksArray.add(t);
+        }else{
+            TimeBlocksArray.add(pos, t);
+        }
+    }
     public void onDelete(View v) {
-        TimeBlocksArray.remove(parentLinearLayout.indexOfChild(v)-1);
-        parentLinearLayout.removeView(v);
-        getWindow().getDecorView().findViewById(R.id.blocks_scrollview_linear_layout).invalidate();
-        getWindow().getDecorView().findViewById(R.id.fancy_list_view).invalidate();
-        DescriptionList.invalidateViews();
+        if(TimeBlocksArray.size() > 1) {
+            TimeBlocksArray.remove(parentLinearLayout.indexOfChild(v) - 1);
+            parentLinearLayout.removeView(v);
+            SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, false);
+        }else{
+            Toast.makeText(Main2Activity.this, "Can't delete last time box", Toast.LENGTH_SHORT).show();
+        }
+
 
     }
 
     public void openEditDialog(View v) {
         BlockBeingEdited = v;
         BlockEdit dialog = new BlockEdit();
-        dialog.show(getSupportFragmentManager(),"block edit");
+        dialog.show(getSupportFragmentManager(), "block edit");
     }
 
     @Override
@@ -300,19 +334,13 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         if(Name.length() == 0){
             Name = "-";
         }
+        Minutes *= MS;
         if(action == BlockEdit.EDIT_BLOCK) {
-            TextView block_text = (TextView) BlockBeingEdited.findViewById(R.id.block_time_text);
-            LinearLayout l = (LinearLayout) BlockBeingEdited.findViewById(R.id.fancy_block_linear_layout);
-            ViewGroup.LayoutParams params = l.getLayoutParams();
-            params.width = (int)(Minutes * Block_size_px);
-            l.setLayoutParams(params);
             Random rnd = new Random();
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            l.setBackgroundColor(color);
-            block_text.setText(Name + "\n" + String.valueOf(Minutes));
-            TimeBlock t = TimeBlocksArray.get(parentLinearLayout.indexOfChild(BlockBeingEdited));
-            t.setAll(Minutes,0,color,Name,Description);
-            DescriptionList.invalidateViews();
+            onAddField(BlockBeingEdited, Name, Minutes, color, Description, false);
+            onDelete(BlockBeingEdited);
+
         }else{
             if(action == BlockEdit.ADD_BLOCK) {
                 Random rnd = new Random();
@@ -331,7 +359,15 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
 
 
     class CustomAdapter2 extends BaseAdapter {
-
+        public void incProgress(int pos,int amount,long time){
+            View v = getView(pos,null,parentLinearLayout);
+            TimeBlock tb = TimeBlocksArray.get(pos);
+            tb.inc(time);
+            ProgressBar b = (ProgressBar) v.findViewById(R.id.circularProgressbar);
+            b.setProgress(amount);
+            TextView t = (TextView) v.findViewById(R.id.tv);
+            t.setText(MiliToStr(tb._curent_milisec));
+        }
         @Override
         public int getCount() {
             return TimeBlocksArray.size()+2;
@@ -348,26 +384,72 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 
-            convertView = getLayoutInflater().inflate(R.layout.description_box,null);
+            convertView = getLayoutInflater().inflate(R.layout.description_box, null);
+
             ViewGroup.LayoutParams params = parent.getLayoutParams();
             params.height = DescriptionList.getHeight()/3;
             convertView.setLayoutParams(params);
+
+            ProgressBar prog;
+            prog = (ProgressBar) convertView.findViewById(R.id.circularProgressbar);
+            TextView t;
+            t = (TextView) convertView.findViewById(R.id.tv);
             //dummy elements puting 1 element in the start and 1 in the end of list
             if(position == 0 || position > TimeBlocksArray.size()){
+                prog.setVisibility(View.GONE);
+                t.setVisibility(View.GONE);
                 return convertView;
             }
+
+
+
+            TimeBlock time_block = TimeBlocksArray.get(position - 1);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openEditDialog(parentLinearLayout.getChildAt(position));
+                }
+            });
+
             TextView name = (TextView) convertView.findViewById(R.id.description_box_name);
             TextView time_text = (TextView) convertView.findViewById(R.id.description_box_description);
-            name.setText(TimeBlocksArray.get(position-1)._name);
-            time_text.setText(TimeBlocksArray.get(position-1)._description);
-            convertView.setBackgroundColor(TimeBlocksArray.get(position-1)._color);
+            name.setText(time_block._name + String.valueOf(position));
+            time_text.setText(time_block._description);
+            convertView.setBackgroundColor(time_block._color);
             Drawable background = convertView.getBackground();
             background.setAlpha(80);
+
+            TextView timerText = (TextView) convertView.findViewById(R.id.tv);
+            ProgressBar progBar = (ProgressBar) convertView.findViewById(R.id.circularProgressbar);
+            timerText.setText(MiliToStr(time_block._curent_milisec));
+            drawable = res.getDrawable(R.drawable.circular);
+            progBar.setProgress(time_block.getProgPrec());   // Main Progress
+            progBar.setSecondaryProgress(100); // Secondary Progress
+            progBar.setMax(100); // Maximum Progress
+            progBar.setProgressDrawable(drawable);
+
+            //set progress bar befor curentJob to full and all jobs after curent to 0
+            if(position-1 < curBlock){
+                progBar.setProgress(100);
+                timerText.setText(MiliToStr(0));
+            }else {
+                timerText.setText(MiliToStr(time_block._curent_milisec));
+                progBar.setProgress(time_block.getProgPrec());
+            }
+
+
 
             return convertView;
         }
     }
+    public String MiliToStr(long l){
+        int secs = (int)(l/MS);
+        int mins = secs/Minute;
+        secs%=Minute;
+        return "" + mins + ":" + String.format("%1$02d", secs);
+    }
+
 
 }

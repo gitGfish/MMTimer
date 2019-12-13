@@ -14,7 +14,7 @@ public class SaveLoad {
 
     public static boolean Save(String id,String Name,int ratio,ArrayList<TimeBlock> TimeBlocksArray,DatabaseHelper myDb,boolean isNew){
         if(id == "0"){
-            boolean isInserted = myDb.insertData(Name, "Name","10", String.valueOf(Color.RED), "This is a Description", 1);
+            boolean isInserted = myDb.insertData(Name, "Name","10000", String.valueOf(Color.RED), "This is a Description", 1);
             return isInserted;
         }
         boolean isInserted;
@@ -24,7 +24,7 @@ public class SaveLoad {
         String b_description = "";
         for (TimeBlock block:TimeBlocksArray) {
             b_names += block._name + "^";
-            b_times += block._minutes + "^";
+            b_times += block._milisec + "^";
             b_colors += block._color + "^" ;
             b_description += block._description + "^" ;
         }
@@ -72,7 +72,7 @@ public class SaveLoad {
             return null;
         }
         for (int index = 0;(index <(Names.length) );index++) {
-            TimeBlock t = new TimeBlock(Integer.parseInt(Times[index]),0,Integer.parseInt(Colors[index]),Names[index],Descriptions[index]);
+            TimeBlock t = new TimeBlock(Integer.parseInt(Times[index]),Integer.parseInt(Colors[index]),Names[index],Descriptions[index]);
             arr.add(t);
         }
         return arr;

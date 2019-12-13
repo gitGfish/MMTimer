@@ -10,8 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Fish 11/30/2019.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
-    public static final String DATABASE_NAME = "Timer5.db";
-    public static final String TABLE_NAME = "Timer4_table";
+    public static final String DATABASE_NAME = "Timer7.db";
+    public static final String TABLE_NAME = "Timer7_table";
     public static final String ID = "ID";
     public static final String NAME = "NAME";
     public static final String B_NAMES = "B_NAMES";

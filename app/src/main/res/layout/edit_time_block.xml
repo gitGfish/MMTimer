@@ -15,6 +15,7 @@
         android:layout_below="@+id/edit_block_Name"
         android:layout_centerHorizontal="true" />
 
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
