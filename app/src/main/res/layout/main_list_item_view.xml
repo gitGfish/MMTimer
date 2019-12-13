@@ -3,12 +3,10 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="15dp"
-    android:paddingTop="10dp"
     android:paddingRight="10dp"
     android:paddingBottom="10dp"
     android:clickable="false"
     android:focusable="false"
-    android:weightSum="1"
     android:gravity="left">
 
     <TextView

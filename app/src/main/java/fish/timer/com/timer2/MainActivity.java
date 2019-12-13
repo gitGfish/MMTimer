@@ -34,13 +34,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         myDb = new DatabaseHelper(this);
         NAMES = SaveLoad.loadIdAndNames(myDb);
-
-
-
+        setTitle("Micro Management Timer");
 
         list = (ListView)findViewById(R.id.main_list_view);
 
-        CustomAdapter customAdapter = new CustomAdapter();
+        final CustomAdapter customAdapter = new CustomAdapter();
 
         if (list != null) {
             list.setAdapter(customAdapter);
@@ -56,20 +54,44 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View v,
+                                           int pos, long id) {
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                final int position = pos;
+                alert.setTitle(NAMES.get(position)[1]);
+                alert.setMessage("Are you sure you want to delete?");
+
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        myDb.deleteData(NAMES.get(position)[0]);
+                        NAMES = SaveLoad.loadIdAndNames(myDb);
+                        customAdapter.notifyDataSetChanged();
+                        // Do something with value!
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        // Canceled.
+                    }
+                });
+
+                alert.show();
+                return true;
+            }
+        });
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        list.invalidateViews();
 
-
-                    }
-                });
                 alert.setTitle("Add Timer");
                 alert.setMessage("Timer Name");
 
@@ -80,12 +102,15 @@ public class MainActivity extends AppCompatActivity {
                 alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         SaveLoad.Save("0", input.getText().toString(), 1, null, myDb, true);
+                        NAMES = SaveLoad.loadIdAndNames(myDb);
+                        customAdapter.notifyDataSetChanged();
                         // Do something with value!
                     }
                 });
 
                 alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+
                         // Canceled.
                     }
                 });

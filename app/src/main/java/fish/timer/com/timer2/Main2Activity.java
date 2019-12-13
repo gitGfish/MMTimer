@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,7 +70,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
     private Handler handlerProgressBar = new Handler();
     long precentCalcTemp = 0;
 
-
+    static int remeber_color = 0;
 
 
 
@@ -95,8 +96,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
                     restar();
                     return;
                 }
-                    DescriptionList.setSelection(curBlock);
-                    DescriptionList.requestFocus();
+                    DescriptionList.smoothScrollToPosition(curBlock+2);
                     precentCalcTemp = currBlockTime;
                     currBlockTime += TimeBlocksArray.get(curBlock)._milisec;
 
@@ -114,6 +114,8 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+
+
 
 
         res = getResources();
@@ -135,7 +137,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             NAME = (String) savedInstanceState.getSerializable("STRING_INAME");
             ID = (String) savedInstanceState.getSerializable("STRING_INAME");
         }
-
+        setTitle(NAME);
         //init database
         myDb = new DatabaseHelper(this);
 
@@ -157,8 +159,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
                     customHandler.postDelayed(updateTimerThread, 0);
                     playOrPause=false;
                     play_paus.setImageResource(android.R.drawable.ic_media_pause);
-                    DescriptionList.setSelection(curBlock);
-                    DescriptionList.requestFocus();
+                    DescriptionList.smoothScrollToPosition(curBlock);
                 }else{
                     timeSwapBuff += timeInMs;
                     customHandler.removeCallbacks(updateTimerThread);
@@ -255,8 +256,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             t.reset();
         }
         currBlockTime = TimeBlocksArray.get(0)._milisec;
-        DescriptionList.setSelection(curBlock);
-        DescriptionList.requestFocus();
+        DescriptionList.smoothScrollToPosition(curBlock);
         customHandler.removeCallbacks(updateTimerThread);
         sv.scrollTo(((int) (Block_size_px * updateTime / (Ratio * MS))), 0);
         SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, false);
@@ -336,15 +336,13 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         }
         Minutes *= MS;
         if(action == BlockEdit.EDIT_BLOCK) {
-            Random rnd = new Random();
-            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            int color = generate_color();
             onAddField(BlockBeingEdited, Name, Minutes, color, Description, false);
             onDelete(BlockBeingEdited);
 
         }else{
             if(action == BlockEdit.ADD_BLOCK) {
-                Random rnd = new Random();
-                int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+                int color = generate_color();
                 onAddField(BlockBeingEdited, Name, Minutes, color, Description, false);
             }else{
                 if(action == BlockEdit.DELETE_BLOCK){
@@ -356,6 +354,9 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, isTimerNew);
 
     }
+
+
+
 
 
     class CustomAdapter2 extends BaseAdapter {
@@ -415,12 +416,9 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
 
             TextView name = (TextView) convertView.findViewById(R.id.description_box_name);
             TextView time_text = (TextView) convertView.findViewById(R.id.description_box_description);
-            name.setText(time_block._name + String.valueOf(position));
+            name.setText(String.valueOf(position) + ". " + time_block._name );
             time_text.setText(time_block._description);
             convertView.setBackgroundColor(time_block._color);
-            Drawable background = convertView.getBackground();
-            background.setAlpha(80);
-
             TextView timerText = (TextView) convertView.findViewById(R.id.tv);
             ProgressBar progBar = (ProgressBar) convertView.findViewById(R.id.circularProgressbar);
             timerText.setText(MiliToStr(time_block._curent_milisec));
@@ -451,5 +449,37 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         return "" + mins + ":" + String.format("%1$02d", secs);
     }
 
+    public int generate_color(){
+        Random rnd = new Random();
+        int r;
+        do{
+            r = rnd.nextInt(6);
+        }
+        while(r == remeber_color);
+        remeber_color = r;
+        switch (r){
+            case 0:
+                r = ResourcesCompat.getColor(getResources(), R.color.app2, null);
+                break;
+            case 1:
+                r = ResourcesCompat.getColor(getResources(), R.color.app3, null);
+                break;
+            case 2:
+                r = ResourcesCompat.getColor(getResources(), R.color.app4, null);
+                break;
+            case 3:
+                r = ResourcesCompat.getColor(getResources(), R.color.app5, null);
+                break;
+            case 4:
+                r = ResourcesCompat.getColor(getResources(), R.color.app6, null);
+                break;
+            case 5:
+                r = ResourcesCompat.getColor(getResources(), R.color.app7, null);
+                break;
+
+        }
+
+        return r;
+    }
 
 }

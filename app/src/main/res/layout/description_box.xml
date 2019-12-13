@@ -2,30 +2,28 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="10dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:paddingRight="10dp"
     android:gravity="right">
 
     <TextView
-        android:layout_width="363dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text=""
         android:id="@+id/description_box_name"
-        android:layout_marginBottom="10dp"
-        android:textSize="32dp"/>
+        android:textSize="32dp"
+        android:textColor="#000000"
+        android:paddingLeft="5dp" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
         android:id="@+id/description_box_description"
         android:textSize="25dp"
         android:layout_below="@+id/description_box_name"
-        android:layout_toStartOf="@+id/circularProgressbar"
-        android:layout_toLeftOf="@+id/circularProgressbar" />
+        android:textColor="#000000"
+        android:paddingLeft="5dp"
+        android:alpha="80" />
     <ProgressBar
 
         android:id="@+id/circularProgressbar"
@@ -39,18 +37,20 @@
         android:secondaryProgress="100"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:alpha="1" />
 
     <TextView
         android:id="@+id/tv"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:gravity="center"
-        android:text="25"
-        android:textColor="@color/colorPrimaryDark"
+        android:text="20"
+        android:textColor="#000000"
         android:textSize="20sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:alpha="1" />
 
 </RelativeLayout>

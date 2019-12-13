@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="fish.timer.com.timer2.Main2Activity"
-    android:background="#409989cb"
+    android:background="@color/app1"
     android:id="@+id/toolbarTimer">
 
 
@@ -13,10 +13,9 @@
         android:id="@+id/DescriptionList"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/fancy_list_view"
-        android:background="@drawable/border2"
         android:divider="#000000"
         android:dividerHeight="1px"
-        />
+        android:background="#ffffff" />
 
     <HorizontalScrollView
         android:layout_width="fill_parent"
@@ -27,8 +26,7 @@
         android:layout_alignParentStart="true"
         android:fillViewport="true"
         android:scrollbars="none"
-        android:background="@drawable/border"
-        >
+        android:background="#6efafafa">
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -56,13 +54,12 @@
         android:id="@+id/timer_clock_linear_layout"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="125dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:baselineAligned="false"
-        android:layout_marginTop="10dp"
-        >
+        android:background="#d3e9fe">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
