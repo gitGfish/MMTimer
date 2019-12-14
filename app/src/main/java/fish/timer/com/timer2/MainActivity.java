@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getBaseContext(), String.valueOf(position), Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(MainActivity.this, Main2Activity.class);
                 i.putExtra("STRING_NAME", NAMES.get(position)[1]);
                 i.putExtra("STRING_ID", NAMES.get(position)[0]);

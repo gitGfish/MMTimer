@@ -13,5 +13,7 @@
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
+    <style name="CustomListItem" parent="android:Widget.TextView">
+        <item name="android:background">@drawable/round_corners</item>
+    </style>
 </resources>

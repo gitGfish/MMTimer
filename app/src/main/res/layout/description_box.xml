@@ -1,56 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="right">
+    android:gravity="right"
+    style="@style/CustomListItem">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text=""
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-light"
         android:id="@+id/description_box_name"
-        android:textSize="32dp"
+        android:textSize="30dp"
         android:textColor="#000000"
-        android:paddingLeft="5dp" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:padding="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text=""
         android:id="@+id/description_box_description"
-        android:textSize="25dp"
-        android:layout_below="@+id/description_box_name"
+        android:textSize="20dp"
+        android:fontFamily="sans-serif-light"
         android:textColor="#000000"
-        android:paddingLeft="5dp"
-        android:alpha="80" />
+        android:paddingLeft="25dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/circularProgressbar"
+        android:layout_toStartOf="@+id/circularProgressbar"
+        android:layout_marginTop="10dp" />
     <ProgressBar
 
         android:id="@+id/circularProgressbar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:indeterminate="false"
         android:max="100"
         android:progress="50"
         android:progressDrawable="@drawable/circular"
         android:secondaryProgress="100"
-        android:layout_alignParentTop="true"
+        android:alpha="1"
+        android:layout_alignTop="@+id/tv"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:alpha="1" />
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/tv"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:text="20"
+
         android:textColor="#000000"
-        android:textSize="20sp"
-        android:layout_alignParentTop="true"
+        android:textSize="15dp"
+        android:alpha="1"
+        android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:alpha="1" />
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

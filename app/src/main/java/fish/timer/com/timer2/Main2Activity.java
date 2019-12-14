@@ -45,7 +45,6 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
     ListView DescriptionList;
     public int curBlock;
     public long currBlockTime;
-    public int seconed;
     long startTime=0L,timeInMs=0L,timeSwapBuff=0L,updateTime=0L;
     public String NAME;
     public String ID;
@@ -97,6 +96,9 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
                     return;
                 }
                     DescriptionList.smoothScrollToPosition(curBlock+2);
+                    colorHorizontalList();
+                    parentLinearLayout = (LinearLayout) findViewById(R.id.blocks_scrollview_linear_layout);
+                    parentLinearLayout.invalidate();
                     precentCalcTemp = currBlockTime;
                     currBlockTime += TimeBlocksArray.get(curBlock)._milisec;
 
@@ -160,6 +162,9 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
                     playOrPause=false;
                     play_paus.setImageResource(android.R.drawable.ic_media_pause);
                     DescriptionList.smoothScrollToPosition(curBlock);
+                    colorHorizontalList();
+                    parentLinearLayout = (LinearLayout) findViewById(R.id.blocks_scrollview_linear_layout);
+                    parentLinearLayout.invalidate();
                 }else{
                     timeSwapBuff += timeInMs;
                     customHandler.removeCallbacks(updateTimerThread);
@@ -229,13 +234,13 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             }
         });
         DescriptionList.setAdapter(customAdapter);
-
         final Handler handlerList = new Handler();
         handlerList.postDelayed(new Runnable() {
 
             @Override
             public void run() {
                 customAdapter.notifyDataSetChanged();
+
                 handlerList.postDelayed(this,  200);
             }
         },  200);
@@ -257,6 +262,9 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         }
         currBlockTime = TimeBlocksArray.get(0)._milisec;
         DescriptionList.smoothScrollToPosition(curBlock);
+        colorHorizontalList();
+        parentLinearLayout = (LinearLayout) findViewById(R.id.blocks_scrollview_linear_layout);
+        parentLinearLayout.invalidate();
         customHandler.removeCallbacks(updateTimerThread);
         sv.scrollTo(((int) (Block_size_px * updateTime / (Ratio * MS))), 0);
         SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, false);
@@ -273,7 +281,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
 
         params.width = (int)((Mili/MS) * Block_size_px);
         l.setLayoutParams(params);
-        block_text.setText(Name + "  " + MiliToStr(Mili) + "\n");
+        block_text.setText("\n");
 
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -336,13 +344,13 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         }
         Minutes *= MS;
         if(action == BlockEdit.EDIT_BLOCK) {
-            int color = generate_color();
+            int color = generate_color(parentLinearLayout.indexOfChild(BlockBeingEdited) - 1);
             onAddField(BlockBeingEdited, Name, Minutes, color, Description, false);
             onDelete(BlockBeingEdited);
 
         }else{
             if(action == BlockEdit.ADD_BLOCK) {
-                int color = generate_color();
+                int color = generate_color(parentLinearLayout.indexOfChild(BlockBeingEdited) - 1);
                 onAddField(BlockBeingEdited, Name, Minutes, color, Description, false);
             }else{
                 if(action == BlockEdit.DELETE_BLOCK){
@@ -351,10 +359,11 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
 
             }
         }
+
         SaveLoad.Save(ID, NAME, Ratio, TimeBlocksArray, myDb, isTimerNew);
 
-    }
 
+    }
 
 
 
@@ -390,7 +399,7 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             convertView = getLayoutInflater().inflate(R.layout.description_box, null);
 
             ViewGroup.LayoutParams params = parent.getLayoutParams();
-            params.height = DescriptionList.getHeight()/3;
+            params.height = (DescriptionList.getHeight()/3 ) - 30;
             convertView.setLayoutParams(params);
 
             ProgressBar prog;
@@ -416,9 +425,11 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
 
             TextView name = (TextView) convertView.findViewById(R.id.description_box_name);
             TextView time_text = (TextView) convertView.findViewById(R.id.description_box_description);
-            name.setText(String.valueOf(position) + ". " + time_block._name );
+            name.setText(time_block._name);
             time_text.setText(time_block._description);
-            convertView.setBackgroundColor(time_block._color);
+
+
+
             TextView timerText = (TextView) convertView.findViewById(R.id.tv);
             ProgressBar progBar = (ProgressBar) convertView.findViewById(R.id.circularProgressbar);
             timerText.setText(MiliToStr(time_block._curent_milisec));
@@ -432,9 +443,17 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             if(position-1 < curBlock){
                 progBar.setProgress(100);
                 timerText.setText(MiliToStr(0));
+                convertView.getBackground().setTint(generate_color(2));
+                convertView.setBackgroundResource(R.drawable.round_corners);
             }else {
+                if(position-1 == curBlock){
+                    convertView.getBackground().setTint(generate_color(1));
+                }else{
+                    convertView.getBackground().setTint(generate_color(0));
+                }
                 timerText.setText(MiliToStr(time_block._curent_milisec));
                 progBar.setProgress(time_block.getProgPrec());
+
             }
 
 
@@ -449,14 +468,8 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
         return "" + mins + ":" + String.format("%1$02d", secs);
     }
 
-    public int generate_color(){
-        Random rnd = new Random();
-        int r;
-        do{
-            r = rnd.nextInt(6);
-        }
-        while(r == remeber_color);
-        remeber_color = r;
+    public int generate_color(int pos){
+        int r = pos % 3;
         switch (r){
             case 0:
                 r = ResourcesCompat.getColor(getResources(), R.color.app2, null);
@@ -467,19 +480,20 @@ public class Main2Activity extends AppCompatActivity implements BlockEdit.BlockE
             case 2:
                 r = ResourcesCompat.getColor(getResources(), R.color.app4, null);
                 break;
-            case 3:
-                r = ResourcesCompat.getColor(getResources(), R.color.app5, null);
-                break;
-            case 4:
-                r = ResourcesCompat.getColor(getResources(), R.color.app6, null);
-                break;
-            case 5:
-                r = ResourcesCompat.getColor(getResources(), R.color.app7, null);
-                break;
+
 
         }
 
         return r;
+    }
+    public void colorHorizontalList(){
+        for(int i = 0; i <  TimeBlocksArray.size() ; i++){
+            if(i+1 == curBlock) {
+                parentLinearLayout.getChildAt(i + 1).setBackgroundColor(generate_color(0));
+            }else{
+                parentLinearLayout.getChildAt(i + 1).setBackgroundColor(generate_color(2));
+            }
+        }
     }
 
 }
